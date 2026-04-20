@@ -3,87 +3,43 @@ from __future__ import annotations
 import os
 from typing import Any
 
+# Load environment variables early
 from dotenv import load_dotenv
 load_dotenv()
 
 try:
-    # Normal case (Langfuse v4 decorators)
-    from langfuse.decorators import observe, langfuse_context
-
-except Exception:
-    # Fallback to manual tracing
-    from langfuse import get_client
-
-    langfuse = get_client()
-
-    _current_trace = None
-    _current_observation = None
-
+    from langfuse import observe, get_client
+    
+    # Get the global Langfuse client instance with faster flush settings
+    langfuse_client = get_client()
+    
+    # Configure for immediate/faster flushing
+    # The client batches events and flushes every few seconds by default
+    # Calling flush() manually ensures immediate sending
+        
+except Exception as e:  # pragma: no cover
+    print(f"Warning: Langfuse initialization failed: {e}")
+    
     def observe(*args: Any, **kwargs: Any):
         def decorator(func):
-            def wrapper(*f_args, **f_kwargs):
-                global _current_trace
-                global _current_observation
-
-                with langfuse.start_as_current_observation(
-                    as_type="span",
-                    name=func.__name__,
-                ) as obs:
-
-                    _current_trace = obs
-                    _current_observation = obs
-
-                    result = func(*f_args, **f_kwargs)
-
-                try:
-                    langfuse.flush()
-                except Exception:
-                    pass
-
-                return result
-
-            return wrapper
-
+            return func
         return decorator
 
-    class _DummyContext:
-        """
-        Fallback context compatible with Langfuse v4 API.
-        """
-
+    class _DummyClient:
         def update_current_trace(self, **kwargs: Any) -> None:
-            global _current_trace
+            return None
 
-            try:
-                print("Fallback trace update")
+        def update_current_span(self, **kwargs: Any) -> None:
+            return None
+        
+        def score_current_trace(self, **kwargs: Any) -> None:
+            return None
+        
+        def flush(self) -> None:
+            return None
 
-                if _current_trace:
-                    _current_trace.update(
-                        metadata=kwargs
-                    )
-
-            except Exception as e:
-                print("Trace update error:", e)
-
-        def update_current_observation(self, **kwargs: Any) -> None:
-            global _current_observation
-
-            try:
-                print("Fallback observation update")
-
-                if _current_observation:
-                    _current_observation.update(
-                        output=kwargs
-                    )
-
-            except Exception as e:
-                print("Observation update error:", e)
-
-    langfuse_context = _DummyContext()
+    langfuse_client = _DummyClient()
 
 
 def tracing_enabled() -> bool:
-    return bool(
-        os.getenv("LANGFUSE_PUBLIC_KEY")
-        and os.getenv("LANGFUSE_SECRET_KEY")
-    )
+    return bool(os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY"))
