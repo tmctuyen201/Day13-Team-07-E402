@@ -7,8 +7,8 @@
 - [REPO_URL]: d:\project\vinai\Lab13-Observability
 - [MEMBERS]:
   - Member A: Trịnh Minh Công Tuyền (2A202600324) | Role: Logging & PII Scrubbing
-  - Member B: Trần Hữu Gia Huy (2A202600426) | Role: Tracing & Enrichment
-  - Member C: Trần Hữu Gia Huy (2A202600426) | Role: SLO & Alerts Configuration
+  - Member B: Trịnh Đắc Phú (2A202600322) | Role: Tracing & Enrichment
+  - Member C: Trịnh Đắc Phú (2A202600322) | Role: SLO & Alerts Configuration
   - Member D: Nguyễn Thị Cẩm Nhung (2A202600208) | Role: Load Test & Dashboard Development
   - Member E: Nguyễn Thị Cẩm Nhung (2A202600208) | Role: Demo & Report Documentation
 
@@ -107,7 +107,7 @@
   - app/pii.py (lines 1-30)
   - Validation: python scripts/validate_logs.py shows 0 PII leaks
 
-### [MEMBER_B_NAME]: Trần Hữu Gia Huy (2A202600426)
+### [MEMBER_B_NAME]: Trịnh Đắc Phú (2A202600322)
 - [TASKS_COMPLETED]: 
   - Implemented CorrelationIdMiddleware in middleware.py
   - Added correlation ID extraction from x-request-id header
@@ -125,7 +125,7 @@
   - app/agent.py (lines 35-95)
   - Validation: 75+ unique correlation IDs in logs
 
-### [MEMBER_C_NAME]: Trần Hữu Gia Huy (2A202600426)
+### [MEMBER_C_NAME]: Trịnh Đắc Phú (2A202600322)
 - [TASKS_COMPLETED]: 
   - Configured SLO targets in config/slo.yaml
   - Defined 4 SLIs: latency_p95_ms, error_rate_pct, daily_cost_usd, quality_score_avg
