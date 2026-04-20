@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import json
+import os
 from collections import Counter
+from pathlib import Path
 from statistics import mean
+
+METRICS_FILE = Path(os.getenv("METRICS_PATH", "data/metrics.json"))
 
 REQUEST_LATENCIES: list[int] = []
 REQUEST_COSTS: list[float] = []
@@ -20,11 +25,17 @@ def record_request(latency_ms: int, cost_usd: float, tokens_in: int, tokens_out:
     REQUEST_TOKENS_IN.append(tokens_in)
     REQUEST_TOKENS_OUT.append(tokens_out)
     QUALITY_SCORES.append(quality_score)
+    
+    # Auto-save after each request
+    save_metrics()
 
 
 
 def record_error(error_type: str) -> None:
     ERRORS[error_type] += 1
+    
+    # Auto-save after error
+    save_metrics()
 
 
 
@@ -35,6 +46,45 @@ def percentile(values: list[int], p: int) -> float:
     idx = max(0, min(len(items) - 1, round((p / 100) * len(items) + 0.5) - 1))
     return float(items[idx])
 
+
+
+def save_metrics() -> None:
+    """Save current metrics to file for persistence across restarts."""
+    METRICS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = {
+        "traffic": TRAFFIC,
+        "latencies": REQUEST_LATENCIES,
+        "costs": REQUEST_COSTS,
+        "tokens_in": REQUEST_TOKENS_IN,
+        "tokens_out": REQUEST_TOKENS_OUT,
+        "errors": dict(ERRORS),
+        "quality_scores": QUALITY_SCORES,
+    }
+    with METRICS_FILE.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_metrics() -> None:
+    """Load metrics from file on startup."""
+    global TRAFFIC, REQUEST_LATENCIES, REQUEST_COSTS, REQUEST_TOKENS_IN
+    global REQUEST_TOKENS_OUT, ERRORS, QUALITY_SCORES
+    
+    if not METRICS_FILE.exists():
+        return
+    
+    try:
+        with METRICS_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        TRAFFIC = data.get("traffic", 0)
+        REQUEST_LATENCIES = data.get("latencies", [])
+        REQUEST_COSTS = data.get("costs", [])
+        REQUEST_TOKENS_IN = data.get("tokens_in", [])
+        REQUEST_TOKENS_OUT = data.get("tokens_out", [])
+        ERRORS = Counter(data.get("errors", {}))
+        QUALITY_SCORES = data.get("quality_scores", [])
+    except Exception as e:
+        print(f"Warning: Failed to load metrics from {METRICS_FILE}: {e}")
 
 
 def snapshot() -> dict:
