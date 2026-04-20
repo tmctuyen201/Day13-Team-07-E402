@@ -13,7 +13,7 @@ from .agent import LabAgent
 from .dashboard import router as dashboard_router
 from .incidents import disable, enable, status
 from .logging_config import configure_logging, get_logger
-from .metrics import record_error, snapshot
+from .metrics import record_error, snapshot, load_metrics, save_metrics
 from .middleware import CorrelationIdMiddleware
 from .pii import hash_user_id, summarize_text
 from .schemas import ChatRequest, ChatResponse
@@ -29,6 +29,9 @@ agent = LabAgent()
 
 @app.on_event("startup")
 async def startup() -> None:
+    # Load persisted metrics from previous runs
+    load_metrics()
+    
     log.info(
         "app_started",
         service=os.getenv("APP_NAME", "day13-observability-lab"),
@@ -132,3 +135,22 @@ async def disable_incident(name: str) -> JSONResponse:
         return JSONResponse({"ok": True, "incidents": status()})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/metrics/reset")
+async def reset_metrics() -> JSONResponse:
+    """Reset all metrics to zero (useful for testing)."""
+    import app.metrics as metrics_module
+    
+    metrics_module.TRAFFIC = 0
+    metrics_module.REQUEST_LATENCIES.clear()
+    metrics_module.REQUEST_COSTS.clear()
+    metrics_module.REQUEST_TOKENS_IN.clear()
+    metrics_module.REQUEST_TOKENS_OUT.clear()
+    metrics_module.ERRORS.clear()
+    metrics_module.QUALITY_SCORES.clear()
+    
+    save_metrics()
+    log.warning("metrics_reset", service="control")
+    
+    return JSONResponse({"ok": True, "message": "Metrics reset successfully"})
