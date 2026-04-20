@@ -35,6 +35,33 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+## New Features 🎉
+
+### Metrics Persistence
+Metrics are now **automatically saved** to `data/metrics.json` and **restored on restart**!
+
+```bash
+# Send some requests
+python scripts/load_test.py
+
+# Restart the app (metrics are preserved!)
+# Ctrl+C → uvicorn app.main:app --reload
+
+# Reset metrics if needed
+curl -X POST http://127.0.0.1:8000/metrics/reset
+```
+
+**Documentation:**
+- 📖 [Quick Reference](QUICK_REFERENCE.md) - Commands & tips
+- 📚 [Complete Guide](METRICS_PERSISTENCE_GUIDE.md) - Full explanation
+- 🔄 [Flow Diagram](docs/metrics-flow-diagram.md) - Visual workflow
+- 📝 [API Docs](docs/metrics-persistence.md) - Technical details
+
+**Test it:**
+```bash
+python scripts/test_persistence.py
+```
+
 ## Tooling
 
 ```bash
