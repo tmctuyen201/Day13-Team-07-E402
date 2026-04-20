@@ -8,7 +8,7 @@
 - [MEMBERS]:
   - Member A: Trịnh Minh Công Tuyền (2A202600324) | Role: Logging & PII Scrubbing
   - Member B: Trịnh Đắc Phú (2A202600322) | Role: Tracing & Enrichment
-  - Member C: Trịnh Đắc Phú (2A202600322) | Role: SLO & Alerts Configuration
+  - Member C: Trần Hữu Gia Huy (2A202600426) | Role: SLO & Alerts Configuration
   - Member D: Nguyễn Thị Cẩm Nhung (2A202600208) | Role: Load Test & Dashboard Development
   - Member E: Nguyễn Thị Cẩm Nhung (2A202600208) | Role: Demo & Report Documentation
 
@@ -125,16 +125,16 @@
   - app/agent.py (lines 35-95)
   - Validation: 75+ unique correlation IDs in logs
 
-### [MEMBER_C_NAME]: Trịnh Đắc Phú (2A202600322)
+### [MEMBER_C_NAME]: Trần Hữu Gia Huy (2A202600426)
 - [TASKS_COMPLETED]: 
   - Configured SLO targets in config/slo.yaml
   - Defined 4 SLIs: latency_p95_ms, error_rate_pct, daily_cost_usd, quality_score_avg
-  - Set objectives and targets for each SLI
-  - Created alert rules in config/alert_rules.yaml
-  - Defined 6 alert rules with severity levels and runbook links
-  - Implemented multi-window, multi-burn-rate alert strategy
-  - Created runbook documentation in docs/alerts.md
-  - Set up incident injection system for testing
+  - Set objectives and targets for each SLI (latency < 3000ms, error rate < 2%, cost < $2.5/day, quality > 0.75)
+  - Created alert rules in config/alert_rules.yaml with 3 symptom-based rules
+  - Defined alert severity levels (P1/P2) and assigned owners (team-oncall, finops-owner)
+  - Linked each alert to runbook documentation
+  - Created runbook documentation in docs/alerts.md with first-checks and mitigation steps
+  - Set up incident injection system for testing alert thresholds
 - [EVIDENCE_LINK]: 
   - config/slo.yaml (complete file)
   - config/alert_rules.yaml (complete file)
